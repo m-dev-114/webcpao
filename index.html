@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chief Pay & Accounts Office – A&N Administration</title>
+<style>
+  :root {
+    --navy: #0A1F44;
+    --navy-light: #142d5e;
+    --gold: #C9A84C;
+    --gold-light: #e8c96a;
+    --teal: #1A6B72;
+    --teal-light: #22878f;
+    --white: #FFFFFF;
+    --bg: #EEF2F7;
+    --bg2: #DDE4EF;
+    --text: #1a1a2e;
+    --muted: #5a6480;
+    --border: #c5cfe0;
+    --success: #1e7e34;
+    --danger: #c0392b;
+    --warning: #e67e22;
+    --card: #ffffff;
+    --shadow: 0 2px 12px rgba(10,31,68,0.10);
+    --shadow-lg: 0 8px 32px rgba(10,31,68,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background: var(--navy); color: #aab8d4; font-size: 12px; padding: 5px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .topbar a { color: #aab8d4; text-decoration: none; margin-left: 14px; }
+  .topbar a:hover { color: var(--gold); }
+  .topbar-left { display: flex; gap: 16px; }
+
+  /* ── HEADER ── */
+  .site-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: white; padding: 16px 32px; display: flex; align-items: center; gap: 20px; position: relative; overflow: hidden; }
+  .site-header::after { content: ''; position: absolute; right: -60px; top: -40px; width: 280px; height: 280px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 10 C60 15 30 40 20 80 C10 120 30 160 70 175 C90 183 110 183 130 175 C170 160 190 120 180 80 C170 40 140 15 100 10Z' fill='white' fill-opacity='0.04'/%3E%3Cpath d='M85 30 C65 35 45 55 42 80 C39 105 55 130 78 140 C90 145 100 143 112 138 C135 128 150 105 147 80 C144 55 124 35 104 30 C98 28 91 28 85 30Z' fill='white' fill-opacity='0.04'/%3E%3C/svg%3E") no-repeat center; opacity: 0.6; pointer-events: none; }
+  .emblem { width: 72px; height: 72px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+  .emblem svg { width: 58px; height: 58px; }
+  .header-text h1 { font-family: Georgia, serif; font-size: 22px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.2; }
+  .header-text h2 { font-size: 14px; font-weight: 400; color: #a8c4e8; margin-top: 3px; }
+  .header-text p { font-size: 11px; color: #7a9fc7; margin-top: 2px; }
+  .header-right { margin-left: auto; display: flex; gap: 10px; z-index: 1; }
+  .btn-login { padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-admin { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .btn-admin:hover { background: var(--gold-light); }
+  .btn-servant { background: transparent; border-color: #7ab3e0; color: #c8dff5; }
+  .btn-servant:hover { background: rgba(122,179,224,0.15); }
+
+  /* ── NAV ── */
+  nav.main-nav { background: var(--teal); }
+  nav.main-nav ul { list-style: none; display: flex; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+  nav.main-nav li a { display: block; padding: 12px 16px; color: rgba(255,255,255,0.88); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.2px; transition: background 0.15s, color 0.15s; }
+  nav.main-nav li a:hover, nav.main-nav li a.active { background: rgba(0,0,0,0.18); color: white; }
+  nav.main-nav li a.active { border-bottom: 3px solid var(--gold); }
+
+  /* ── TICKER ── */
+  .ticker-bar { background: #fff3cd; border-bottom: 1px solid #ffd97d; padding: 7px 24px; display: flex; align-items: center; gap: 12px; font-size: 13px; overflow: hidden; }
+  .ticker-label { background: var(--navy); color: white; padding: 2px 10px; border-radius: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+  .ticker-text { white-space: nowrap; animation: ticker 30s linear infinite; color: #5a3d00; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-60%); } }
+
+  /* ── LAYOUT ── */
+  .main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+  .main-content { min-width: 0; }
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── HERO BANNER ── */
+  .hero-banner { background: linear-gradient(135deg, var(--navy) 0%, #1a3a6b 100%); color: white; border-radius: 8px; padding: 28px 32px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; position: relative; overflow: hidden; }
+  .hero-banner::before { content: 'A&N'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 120px; font-weight: 900; color: rgba(255,255,255,0.04); pointer-events: none; letter-spacing: -5px; }
+  .hero-title { font-family: Georgia, serif; font-size: 24px; margin-bottom: 8px; }
+  .hero-sub { color: #a8c4e8; font-size: 14px; line-height: 1.6; max-width: 480px; }
+  .hero-stats { display: flex; gap: 24px; margin-top: 20px; }
+  .hero-stat { text-align: center; }
+  .hero-stat .num { font-size: 28px; font-weight: 700; color: var(--gold); }
+  .hero-stat .lbl { font-size: 11px; color: #7a9fc7; margin-top: 2px; }
+
+  /* ── CARDS ── */
+  .card { background: var(--card); border-radius: 8px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--bg); }
+  .card-header h3 { font-family: Georgia, serif; font-size: 16px; color: var(--navy); }
+  .card-icon { width: 36px; height: 36px; border-radius: 6px; background: var(--navy); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 16px; flex-shrink: 0; }
+
+  /* ── QUICK LINKS ── */
+  .quick-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .ql-item { background: var(--card); border-radius: 8px; padding: 18px 14px; text-align: center; text-decoration: none; color: var(--navy); box-shadow: var(--shadow); border-top: 3px solid transparent; transition: all 0.2s; cursor: pointer; border: none; width: 100%; font-family: inherit; }
+  .ql-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-top-color: var(--gold); }
+  .ql-item .icon { font-size: 26px; margin-bottom: 8px; }
+  .ql-item .label { font-size: 12px; font-weight: 600; line-height: 1.3; }
+
+  /* ── NOTICE BOARD ── */
+  .notice-list { list-style: none; }
+  .notice-list li { padding: 10px 0; border-bottom: 1px solid var(--bg2); display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+  .notice-list li:last-child { border-bottom: none; }
+  .notice-list li .date { color: var(--muted); font-size: 11px; white-space: nowrap; margin-top: 2px; }
+  .notice-badge { background: var(--danger); color: white; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; flex-shrink: 0; }
+  .notice-badge.new { background: var(--teal); }
+  .notice-list a { color: var(--navy); text-decoration: none; font-weight: 500; }
+  .notice-list a:hover { color: var(--teal); text-decoration: underline; }
+
+  /* ── TABLE ── */
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data-table th { background: var(--navy); color: white; padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+  table.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--bg2); }
+  table.data-table tr:hover td { background: var(--bg); }
+  table.data-table tr:nth-child(even) td { background: #f7f9fc; }
+  table.data-table tr:nth-child(even):hover td { background: var(--bg); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-active { background: #d4edda; color: #155724; }
+  .badge-pending { background: #fff3cd; color: #856404; }
+  .badge-closed { background: #f8d7da; color: #721c24; }
+  .badge-approved { background: #d1ecf1; color: #0c5460; }
+
+  /* ── FORMS ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  input, select, textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 5px; font-size: 13px; font-family: inherit; color: var(--text); background: white; transition: border-color 0.15s; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,107,114,0.1); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* ── BUTTONS ── */
+  .btn { padding: 9px 20px; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-teal { background: var(--teal); color: white; }
+  .btn-teal:hover { background: var(--teal-light); }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--navy); color: var(--navy); }
+  .btn-outline:hover { background: var(--navy); color: white; }
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* ── LOGIN MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,31,68,0.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 10px; padding: 36px; width: 400px; max-width: 95vw; box-shadow: var(--shadow-lg); position: relative; }
+  .modal h2 { font-family: Georgia, serif; font-size: 20px; color: var(--navy); margin-bottom: 6px; }
+  .modal .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+  .modal-close:hover { color: var(--danger); }
+  .login-form .form-group { margin-bottom: 14px; }
+
+  /* ── SIDEBAR WIDGETS ── */
+  .sb-card { background: var(--card); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+  .sb-card-header { background: var(--navy); color: white; padding: 12px 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.3px; display: flex; align-items: center; gap: 8px; }
+  .sb-card-body { padding: 14px; }
+  .sb-link-list { list-style: none; }
+  .sb-link-list li { border-bottom: 1px solid var(--bg2); }
+  .sb-link-list li:last-child { border-bottom: none; }
+  .sb-link-list li a { display: block; padding: 8px 4px; font-size: 12.5px; color: var(--navy); text-decoration: none; transition: color 0.15s; }
+  .sb-link-list li a:hover { color: var(--teal); padding-left: 8px; }
+  .sb-link-list li a::before { content: '›'; margin-right: 6px; color: var(--gold); font-weight: 700; }
+
+  /* ── FOOTER ── */
+  footer { background: var(--navy); color: #7a94be; text-align: center; padding: 20px; font-size: 12px; margin-top: 32px; }
+  footer a { color: var(--gold); text-decoration: none; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; border-bottom: 2px solid var(--bg2); margin-bottom: 20px; gap: 4px; }
+  .tab-btn { padding: 9px 18px; background: none; border: none; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; }
+  .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── ALERTS ── */
+  .alert { padding: 12px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 14px; border-left: 4px solid; }
+  .alert-info { background: #e3f0ff; border-color: #3a7bd5; color: #1a3f7a; }
+  .alert-success { background: #d4edda; border-color: var(--success); color: #155724; }
+  .alert-warning { background: #fff3cd; border-color: var(--warning); color: #5a3d00; }
+  .alert-danger { background: #f8d7da; border-color: var(--danger); color: #721c24; }
+
+  /* ── UPLOAD ── */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .upload-zone:hover { border-color: var(--teal); background: rgba(26,107,114,0.03); }
+  .upload-zone .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-zone p { font-size: 13px; color: var(--muted); }
+  .uploaded-files-list { list-style: none; margin-top: 14px; }
+  .uploaded-files-list li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg); border-radius: 5px; margin-bottom: 6px; font-size: 13px; }
+  .uploaded-files-list li .file-icon { font-size: 18px; }
+  .uploaded-files-list li .file-name { flex: 1; font-weight: 500; }
+  .uploaded-files-list li .file-size { color: var(--muted); font-size: 11px; }
+
+  /* ── STATUS TRACKER ── */
+  .status-track { display: flex; gap: 0; margin: 20px 0; }
+  .st-step { flex: 1; text-align: center; position: relative; }
+  .st-step::before { content: ''; position: absolute; top: 14px; left: 50%; width: 100%; height: 2px; background: var(--bg2); z-index: 0; }
+  .st-step:last-child::before { display: none; }
+  .st-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--bg2); color: var(--muted); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; position: relative; z-index: 1; border: 2px solid var(--bg2); }
+  .st-step.done .st-dot { background: var(--success); color: white; border-color: var(--success); }
+  .st-step.active .st-dot { background: var(--teal); color: white; border-color: var(--teal); box-shadow: 0 0 0 4px rgba(26,107,114,0.2); }
+  .st-step.done::before { background: var(--success); }
+  .st-label { font-size: 11px; color: var(--muted); }
+  .st-step.done .st-label, .st-step.active .st-label { color: var(--navy); font-weight: 600; }
+
+  /* ── PROFILE CARD ── */
+  .profile-card { display: flex; gap: 18px; align-items: center; background: linear-gradient(135deg, var(--navy) 0%, #1a3a6b 100%); color: white; border-radius: 8px; padding: 20px 24px; margin-bottom: 20px; }
+  .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: var(--navy); flex-shrink: 0; }
+  .profile-info h3 { font-family: Georgia, serif; font-size: 18px; }
+  .profile-info p { font-size: 12.5px; color: #a8c4e8; margin-top: 3px; }
+  .profile-badge { margin-top: 6px; }
+
+  /* ── SESSION BAR ── */
+  .session-bar { background: #e8f4e8; border: 1px solid #a8d5a2; border-radius: 6px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: #1a5c1a; margin-bottom: 16px; }
+  .session-bar .session-role { font-weight: 700; }
+  .session-bar button { margin-left: auto; background: none; border: 1px solid #1a5c1a; border-radius: 4px; padding: 3px 10px; font-size: 12px; color: #1a5c1a; cursor: pointer; font-family: inherit; }
+
+  /* ── DOCUMENT PUBLIC ── */
+  .doc-category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .doc-cat-btn { background: white; border: 1.5px solid var(--border); border-radius: 7px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .doc-cat-btn:hover, .doc-cat-btn.active { border-color: var(--teal); background: rgba(26,107,114,0.05); }
+  .doc-cat-btn .cat-icon { font-size: 24px; margin-bottom: 6px; }
+  .doc-cat-btn .cat-name { font-size: 12px; font-weight: 600; color: var(--navy); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .quick-links { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 12px; }
+    .doc-category-grid { grid-template-columns: repeat(2, 1fr); }
+    .header-right { display: none; }
+  }
+
+  /* ── SEARCH BAR ── */
+  .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+  .search-bar input { flex: 1; }
+  .search-bar button { flex-shrink: 0; }
+
+  /* ── DATA ROW ── */
+  .data-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--bg2); font-size: 13px; }
+  .data-row:last-child { border-bottom: none; }
+  .data-row .label { color: var(--muted); }
+  .data-row .value { font-weight: 600; color: var(--navy); }
+
+  /* print */
+  @media print { .topbar, nav.main-nav, .ticker-bar, .sidebar, footer { display: none; } .main-layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span>🌐 Government of Andaman & Nicobar Islands</span>
+    <span>|</span>
+    <a href="#">Screen Reader Access</a>
+    <a href="#">Skip to Content</a>
+    <a href="#">Sitemap</a>
+  </div>
+  <div>
+    <a href="#">A+</a>
+    <a href="#">A</a>
+    <a href="#">A-</a>
+    <a href="#">हिन्दी</a>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="emblem">
+    <!-- India Government Emblem SVG -->
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="48" fill="#0A1F44"/>
+      <circle cx="50" cy="50" r="42" fill="white"/>
+      <circle cx="50" cy="50" r="36" fill="#0A1F44"/>
+      <text x="50" y="56" text-anchor="middle" font-size="18" font-weight="900" fill="#C9A84C" font-family="Georgia">A&N</text>
+      <path d="M20,70 Q50,82 80,70" stroke="#C9A84C" stroke-width="2" fill="none"/>
+      <circle cx="50" cy="30" r="8" fill="#C9A84C"/>
+      <path d="M42,40 L50,22 L58,40 Z" fill="#C9A84C"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>Chief Pay &amp; Accounts Office</h1>
+    <h2>Andaman &amp; Nicobar Administration, Port Blair</h2>
+    <p>Department of Finance | Government of India | Ministry of Home Affairs</p>
+  </div>
+  <div class="header-right">
+    <button class="btn-login btn-servant" onclick="openLoginModal('servant')">👤 Govt. Servant Login</button>
+    <button class="btn-login btn-admin" onclick="openLoginModal('admin')">🔐 Admin Login</button>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="main-nav">
+  <ul>
+    <li><a href="#" class="active" onclick="showPage('home',this)">🏠 Home</a></li>
+    <li><a href="#" onclick="showPage('about',this)">About CPAO</a></li>
+    <li><a href="#" onclick="showPage('staff',this)">Staff Information</a></li>
+    <li><a href="#" onclick="showPage('documents',this)">📄 Documents &amp; Forms</a></li>
+    <li><a href="#" onclick="showPage('loans',this)">Loans &amp; Advances</a></li>
+    <li><a href="#" onclick="showPage('circulars',this)">Circulars / Orders</a></li>
+    <li><a href="#" onclick="showPage('contact',this)">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <span class="ticker-label">📢 NOTICE</span>
+  <span class="ticker-text">
+    Last date for submission of TA/DA bills for March 2025 extended to 30-06-2025 &nbsp;|&nbsp;
+    Annual Pay Revision effective from 01-01-2025 – All DDOs to submit revised Pay Fixation Statements by 15-07-2025 &nbsp;|&nbsp;
+    House Building Advance applications for 2025-26 now open &nbsp;|&nbsp;
+    Festival Advance sanctioned – Diwali 2025 – Disbursement completed &nbsp;|&nbsp;
+    GPF Statements for 2024-25 available for download in Govt. Servant Portal
+  </span>
+</div>
+
+<!-- SESSION BAR (hidden by default) -->
+<div id="session-bar" class="session-bar" style="display:none; margin: 8px 24px 0;">
+  <span>✅ Logged in as: <span class="session-role" id="session-role-label"></span></span>
+  <span id="session-user-name"></span>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: HOME -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page active" id="page-home">
+    <div class="hero-banner">
+      <div>
+        <div class="hero-title">Chief Pay &amp; Accounts Office</div>
+        <p class="hero-sub">Serving the financial administration of the Andaman &amp; Nicobar Islands since 1956. We ensure timely disbursement, accounting, and audit of government salaries, pensions, and advances.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">4,200+</div><div class="lbl">Govt. Employees</div></div>
+          <div class="hero-stat"><div class="num">38</div><div class="lbl">DDO Units</div></div>
+          <div class="hero-stat"><div class="num">₹420 Cr</div><div class="lbl">Annual Disbursement</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links">
+      <button class="ql-item" onclick="showPage('documents',null)"><div class="icon">📥</div><div class="label">Download Forms</div></button>
+      <button class="ql-item" onclick="openLoginModal('servant')"><div class="icon">🔍</div><div class="label">Check Loan Status</div></button>
+      <button class="ql-item" onclick="showPage('staff',null)"><div class="icon">👥</div><div class="label">Staff Directory</div></button>
+      <button class="ql-item" onclick="showPage('circulars',null)"><div class="icon">📋</div><div class="label">Circulars &amp; Orders</div></button>
+      <button class="ql-item" onclick="showPage('loans',null)"><div class="icon">💰</div><div class="label">Loans &amp; Advances</div></button>
+      <button class="ql-item" onclick="showPage('contact',null)"><div class="icon">📞</div><div class="label">Contact CPAO</div></button>
+    </div>
+
+    <!-- Notices -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📢</div>
+        <h3>What's New / Notices</h3>
+      </div>
+      <ul class="notice-list" id="notice-list">
+        <li><span class="notice-badge new">NEW</span><div><a href="#">Annual Property Returns – Deadline 31-07-2025</a><div class="date">25 Jun 2025</div></div></li>
+        <li><span class="notice-badge">PDF</span><div><a href="#">TA/DA Revised Rates – A&N Administration Order No. F.11/2025-FIN</a><div class="date">20 Jun 2025</div></div></li>
+        <li><span class="notice-badge new">NEW</span><div><a href="#">House Building Advance – Application Portal Open for 2025-26</a><div class="date">18 Jun 2025</div></div></li>
+        <li><span class="notice-badge">PDF</span><div><a href="#">CGHS Beneficiary Update – Revised Contribution Rates w.e.f. 01-Jul-2025</a><div class="date">15 Jun 2025</div></div></li>
+        <li><span class="notice-badge">PDF</span><div><a href="#">Pay Fixation on Promotion – Instructions for DDOs (Circular 08/2025)</a><div class="date">10 Jun 2025</div></div></li>
+        <li><span class="notice-badge">PDF</span><div><a href="#">GPF Statements for FY 2024-25 – Available for Download</a><div class="date">05 Jun 2025</div></div></li>
+        <li><span class="notice-badge new">NEW</span><div><a href="#">Festival Advance (Eid-ul-Adha 2025) – Disbursement Completed</a><div class="date">01 Jun 2025</div></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: ABOUT -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page" id="page-about">
+    <div class="card">
+      <div class="card-header"><div class="card-icon">🏛️</div><h3>About Chief Pay &amp; Accounts Office</h3></div>
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:14px;">The Chief Pay &amp; Accounts Office (CPAO), Andaman &amp; Nicobar Administration, is the principal accounts authority under the Government of India for the Union Territory of Andaman &amp; Nicobar Islands. It functions under the overall supervision of the Financial Advisor &amp; Chief Accounts Officer.</p>
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:14px;">CPAO is responsible for pre-audit and payment of bills pertaining to all departments of the A&N Administration, maintenance of Government Provident Fund accounts, sanctioning of loans and advances to government servants, compilation of monthly accounts, and submission of returns to the Controller General of Accounts (CGA), New Delhi.</p>
+      <h4 style="font-family:Georgia,serif;color:var(--navy);margin:18px 0 10px;">Functions</h4>
+      <ul style="font-size:13.5px;line-height:2;padding-left:20px;color:#333;">
+        <li>Pre-audit and payment of salary, pension, TA/DA, and contingency bills</li>
+        <li>Maintenance of GPF accounts for Group A, B &amp; C employees</li>
+        <li>Sanction and disbursement of House Building Advance (HBA), Motor Car Advance (MCA), and other personal advances</li>
+        <li>Budget monitoring and expenditure control</li>
+        <li>Compilation of monthly civil accounts and submission to CGA</li>
+        <li>Internal audit and inspection of sub-offices and DDOs</li>
+        <li>Coordination with PAO offices for Central Sector Schemes</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: STAFF INFORMATION -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page" id="page-staff">
+    <div class="card">
+      <div class="card-header"><div class="card-icon">👥</div><h3>Staff Information &amp; Current Posting</h3></div>
+
+      <!-- Admin-only toolbar -->
+      <div id="staff-admin-toolbar" style="display:none;" class="alert alert-info">
+        🔐 Admin Mode Active &nbsp;
+        <button class="btn btn-teal btn-sm" onclick="showAddStaffModal()">+ Add Employee</button>
+        <button class="btn btn-gold btn-sm" style="margin-left:8px;" onclick="exportTable()">⬇ Export CSV</button>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" placeholder="Search by name, employee ID, designation, or department…" oninput="filterStaff(this.value)">
+        <button class="btn btn-primary btn-sm" onclick="filterStaff(document.getElementById('staff-search').value)">🔍 Search</button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="staff-table">
+          <thead>
+            <tr>
+              <th>Emp. ID</th>
+              <th>Name</th>
+              <th>Designation</th>
+              <th>Department / DDO</th>
+              <th>Current Posting</th>
+              <th>Date of Joining</th>
+              <th>Status</th>
+              <th id="staff-action-col" style="display:none;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="staff-tbody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: DOCUMENTS -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page" id="page-documents">
+    <!-- Admin Upload Section (hidden for public) -->
+    <div id="doc-admin-panel" style="display:none;" class="card">
+      <div class="card-header"><div class="card-icon">⬆️</div><h3>Upload Document (Admin)</h3></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Document Title</label>
+          <input type="text" id="doc-title" placeholder="e.g. HBA Application Form 2025">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="doc-category">
+            <option>Circulars &amp; Orders</option>
+            <option>Forms &amp; Applications</option>
+            <option>Pay &amp; Accounts</option>
+            <option>Loans &amp; Advances</option>
+            <option>GPF Related</option>
+            <option>Pension</option>
+            <option>Service Rules</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Upload File</label>
+          <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">📁</div>
+            <p>Click to select PDF, DOC, or XLS file<br><small>Max file size: 10 MB</small></p>
+            <input type="file" id="file-input" style="display:none;" onchange="handleFileSelect(this)" accept=".pdf,.doc,.docx,.xls,.xlsx">
+          </div>
+          <ul class="uploaded-files-list" id="uploaded-files-list"></ul>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-teal" onclick="uploadDocument()">⬆ Upload &amp; Publish</button>
+        <button class="btn btn-outline">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Public Document View -->
+    <div class="card">
+      <div class="card-header"><div class="card-icon">📄</div><h3>Documents, Forms &amp; Circulars</h3></div>
+      <div class="doc-category-grid">
+        <button class="doc-cat-btn active" onclick="filterDocs('all',this)"><div class="cat-icon">📚</div><div class="cat-name">All</div></button>
+        <button class="doc-cat-btn" onclick="filterDocs('Circulars & Orders',this)"><div class="cat-icon">📋</div><div class="cat-name">Circulars &amp; Orders</div></button>
+        <button class="doc-cat-btn" onclick="filterDocs('Forms & Applications',this)"><div class="cat-icon">📝</div><div class="cat-name">Forms</div></button>
+        <button class="doc-cat-btn" onclick="filterDocs('Pay & Accounts',this)"><div class="cat-icon">💳</div><div class="cat-name">Pay &amp; Accounts</div></button>
+        <button class="doc-cat-btn" onclick="filterDocs('Loans & Advances',this)"><div class="cat-icon">🏦</div><div class="cat-name">Loans &amp; Advances</div></button>
+        <button class="doc-cat-btn" onclick="filterDocs('GPF Related',this)"><div class="cat-icon">📊</div><div class="cat-name">GPF</div></button>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Search documents…" oninput="searchDocs(this.value)">
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr><th>S.No</th><th>Document Title</th><th>Category</th><th>Date</th><th>Format</th><th>Action</th></tr>
+          </thead>
+          <tbody id="docs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: LOANS & ADVANCES -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page" id="page-loans">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('loans','tab-overview',this)">📊 Overview</button>
+      <button class="tab-btn" onclick="showTab('loans','tab-add-loan',this)" id="tab-add-loan-btn" style="display:none;">➕ New Entry (Admin)</button>
+      <button class="tab-btn" onclick="showTab('loans','tab-my-status',this)" id="tab-my-status-btn" style="display:none;">🔍 My Loan Status</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div class="tab-panel active" id="loans-tab-overview">
+      <div class="card">
+        <div class="card-header"><div class="card-icon">📊</div><h3>Loans &amp; Advances Summary</h3></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;">
+          <div style="background:var(--bg);border-radius:7px;padding:16px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--navy);">142</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Active Loans</div>
+          </div>
+          <div style="background:var(--bg);border-radius:7px;padding:16px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--warning);">23</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Pending Applications</div>
+          </div>
+          <div style="background:var(--bg);border-radius:7px;padding:16px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--success);">₹8.4 Cr</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Total Outstanding</div>
+          </div>
+        </div>
+        <div id="loans-admin-toolbar" style="display:none;margin-bottom:12px;">
+          <button class="btn btn-teal btn-sm" onclick="document.querySelector('#tab-add-loan-btn').click()">+ Add New Loan Entry</button>
+          <button class="btn btn-gold btn-sm" style="margin-left:8px;">⬇ Export Report</button>
+        </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Search by Employee ID or Name…" oninput="filterLoans(this.value)">
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Emp. ID</th><th>Name</th><th>Loan Type</th><th>Amount (₹)</th><th>Sanctioned On</th><th>Balance (₹)</th><th>Status</th><th id="loan-action-col" style="display:none;">Actions</th></tr>
+            </thead>
+            <tbody id="loans-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD LOAN TAB (Admin only) -->
+    <div class="tab-panel" id="loans-tab-add-loan">
+      <div class="card">
+        <div class="card-header"><div class="card-icon">➕</div><h3>Add / Update Loan Entry</h3></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Employee ID</label><input type="text" id="loan-emp-id" placeholder="e.g. AN-1042"></div>
+          <div class="form-group"><label>Employee Name</label><input type="text" id="loan-emp-name" placeholder="Full Name"></div>
+          <div class="form-group"><label>Loan Type</label>
+            <select id="loan-type">
+              <option>House Building Advance (HBA)</option>
+              <option>Motor Car Advance</option>
+              <option>Computer Advance</option>
+              <option>Festival Advance</option>
+              <option>GPF Advance</option>
+              <option>Education Advance</option>
+              <option>Medical Advance</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Sanctioned Amount (₹)</label><input type="number" id="loan-amount" placeholder="e.g. 2500000"></div>
+          <div class="form-group"><label>Date of Sanction</label><input type="date" id="loan-date"></div>
+          <div class="form-group"><label>No. of EMIs</label><input type="number" id="loan-emis" placeholder="e.g. 180"></div>
+          <div class="form-group"><label>EMIs Paid</label><input type="number" id="loan-emis-paid" placeholder="e.g. 24"></div>
+          <div class="form-group"><label>Status</label>
+            <select id="loan-status">
+              <option>Active</option>
+              <option>Pending Sanction</option>
+              <option>Closed</option>
+              <option>Suspended</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Remarks</label><textarea id="loan-remarks" placeholder="Any additional notes…"></textarea></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-teal" onclick="saveLoanEntry()">💾 Save Entry</button>
+          <button class="btn btn-outline" onclick="showTab('loans','tab-overview',null)">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY STATUS TAB (Servant only) -->
+    <div class="tab-panel" id="loans-tab-my-status">
+      <div id="servant-loan-detail">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: CIRCULARS -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page" id="page-circulars">
+    <div class="card">
+      <div class="card-header"><div class="card-icon">📋</div><h3>Circulars, Office Orders &amp; Government Notifications</h3></div>
+      <div class="search-bar">
+        <input type="text" placeholder="Search circulars by subject or number…">
+        <button class="btn btn-primary btn-sm">🔍 Search</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead><tr><th>Sl.</th><th>Circular / Order No.</th><th>Subject</th><th>Date</th><th>Issued By</th><th>Download</th></tr></thead>
+          <tbody id="circulars-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- PAGE: CONTACT -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="main-content page" id="page-contact">
+    <div class="card">
+      <div class="card-header"><div class="card-icon">📞</div><h3>Contact Us</h3></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="data-row"><span class="label">Office</span><span class="value">Chief Pay &amp; Accounts Office</span></div>
+          <div class="data-row"><span class="label">Address</span><span class="value">Secretariat, Port Blair – 744 101</span></div>
+          <div class="data-row"><span class="label">A&amp;N Islands</span><span class="value">Union Territory, India</span></div>
+          <div class="data-row"><span class="label">Phone</span><span class="value">03192-232271</span></div>
+          <div class="data-row"><span class="label">Fax</span><span class="value">03192-232272</span></div>
+          <div class="data-row"><span class="label">Email</span><span class="value">cpao-an@nic.in</span></div>
+          <div class="data-row"><span class="label">Working Hours</span><span class="value">Mon–Fri, 9:00 AM – 5:30 PM</span></div>
+        </div>
+        <div>
+          <h4 style="font-family:Georgia,serif;color:var(--navy);margin-bottom:12px;">Key Officers</h4>
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Designation</th><th>Extn.</th></tr></thead>
+            <tbody>
+              <tr><td>Shri R.K. Sharma</td><td>FA &amp; CAO</td><td>221</td></tr>
+              <tr><td>Smt. P. Anand</td><td>Dy. CAO</td><td>223</td></tr>
+              <tr><td>Shri M. Das</td><td>Sr. Accounts Officer</td><td>225</td></tr>
+              <tr><td>Smt. T. Roy</td><td>Accounts Officer (GPF)</td><td>227</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <!-- IMPORTANT LINKS -->
+    <div class="sb-card">
+      <div class="sb-card-header">🔗 Important Links</div>
+      <div class="sb-card-body">
+        <ul class="sb-link-list">
+          <li><a href="https://www.cga.nic.in" target="_blank">Controller General of Accounts</a></li>
+          <li><a href="https://pfms.nic.in" target="_blank">PFMS – Public Financial Mgmt.</a></li>
+          <li><a href="https://and.nic.in" target="_blank">A&amp;N Administration</a></li>
+          <li><a href="https://www.finmin.nic.in" target="_blank">Ministry of Finance</a></li>
+          <li><a href="#" onclick="showPage('documents',null)">Download Pay Slips</a></li>
+          <li><a href="#" onclick="showPage('documents',null)">GPF Statement Portal</a></li>
+          <li><a href="#" onclick="showPage('documents',null)">TA/DA Claim Forms</a></li>
+          <li><a href="https://ddo.nic.in" target="_blank">DDO Portal</a></li>
+          <li><a href="https://sparrow.nic.in" target="_blank">SPARROW (ACR Portal)</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TENDER / PROCUREMENT -->
+    <div class="sb-card">
+      <div class="sb-card-header">📢 Latest Circulars</div>
+      <div class="sb-card-body">
+        <ul class="sb-link-list">
+          <li><a href="#">Circular 09/2025 – Medical Advance</a></li>
+          <li><a href="#">Circular 08/2025 – Pay Fixation</a></li>
+          <li><a href="#">Circular 07/2025 – LTC Rules</a></li>
+          <li><a href="#">Office Order 14/2025 – Transfers</a></li>
+          <li><a href="#">Office Memo – GPF Withdrawal</a></li>
+        </ul>
+        <a href="#" onclick="showPage('circulars',null)" style="display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--teal);font-weight:600;">View All →</a>
+      </div>
+    </div>
+
+    <!-- RTI -->
+    <div class="sb-card">
+      <div class="sb-card-header">🏛️ RTI Corner</div>
+      <div class="sb-card-body" style="font-size:12.5px;line-height:1.7;">
+        <p style="color:var(--muted);margin-bottom:8px;">Information under Section 4(1)(b) of the RTI Act, 2005</p>
+        <ul class="sb-link-list">
+          <li><a href="#">Suo Motu Disclosures</a></li>
+          <li><a href="#">Public Information Officer</a></li>
+          <li><a href="#">Annual Reports</a></li>
+          <li><a href="#">Budget Allocations</a></li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Chief Pay &amp; Accounts Office, Andaman &amp; Nicobar Administration, Port Blair – 744 101</p>
+  <p style="margin-top:6px;">Website Policy | <a href="#">Privacy Policy</a> | <a href="#">Disclaimer</a> | <a href="#">Accessibility Statement</a> | Last Updated: June 2025</p>
+  <p style="margin-top:6px;font-size:11px;color:#5a6480;">Best viewed in Google Chrome 100+, Firefox 95+. Resolution 1024×768 or above.</p>
+</footer>
+
+<!-- ═══ LOGIN MODAL ═══ -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLoginModal()">✕</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div id="login-modal-icon" style="font-size:28px;">🔐</div>
+      <div>
+        <h2 id="login-modal-title">Admin Login</h2>
+        <p class="modal-sub" id="login-modal-sub">Enter your credentials to access the admin panel</p>
+      </div>
+    </div>
+    <div class="login-form">
+      <div class="form-group"><label>User ID / Employee ID</label><input type="text" id="login-userid" placeholder="Enter User ID"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="Enter Password"></div>
+      <div id="login-error" class="alert alert-danger" style="display:none;">Invalid credentials. Please try again.</div>
+      <div class="btn-group" style="justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="closeLoginModal()">Cancel</button>
+        <button class="btn btn-primary" id="login-submit-btn" onclick="doLogin()">Login →</button>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:12px;text-align:center;"><a href="#" style="color:var(--teal);">Forgot Password?</a> | For assistance call: 03192-232271</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADD STAFF MODAL ═══ -->
+<div class="modal-overlay" id="add-staff-modal">
+  <div class="modal" style="width:520px;">
+    <button class="modal-close" onclick="document.getElementById('add-staff-modal').classList.remove('open')">✕</button>
+    <h2 style="font-family:Georgia,serif;color:var(--navy);margin-bottom:16px;">Add / Edit Employee Record</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>Employee ID</label><input type="text" id="add-emp-id" placeholder="AN-XXXX"></div>
+      <div class="form-group"><label>Full Name</label><input type="text" id="add-emp-name"></div>
+      <div class="form-group"><label>Designation</label><input type="text" id="add-emp-desig"></div>
+      <div class="form-group"><label>Department</label><input type="text" id="add-emp-dept"></div>
+      <div class="form-group"><label>Current Posting</label><input type="text" id="add-emp-posting"></div>
+      <div class="form-group"><label>Date of Joining</label><input type="date" id="add-emp-doj"></div>
+      <div class="form-group"><label>Status</label><select id="add-emp-status"><option>Active</option><option>On Leave</option><option>Transferred</option><option>Retired</option></select></div>
+    </div>
+    <div class="btn-group" style="justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-outline" onclick="document.getElementById('add-staff-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-teal" onclick="saveStaffEntry()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:12px 22px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);display:none;z-index:9999;border-left:4px solid var(--gold);">
+  Toast message
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentUser = null; // null = public, {role:'admin'|'servant', id, name}
+let loginTarget = 'admin';
+
+const USERS = {
+  'admin001': { role: 'admin', name: 'Admin User', password: 'admin123' },
+  'AN-1042':  { role: 'servant', name: 'Rajesh Kumar', password: 'servant123' },
+  'AN-2078':  { role: 'servant', name: 'Priya Sharma', password: 'pass2078' },
+};
+
+// ─── STAFF DATA ───
+let staffData = [
+  { id:'AN-1001', name:'Shri A.K. Menon', desig:'Senior Accounts Officer', dept:'CPAO HQ', posting:'Port Blair', doj:'2005-06-15', status:'Active' },
+  { id:'AN-1042', name:'Rajesh Kumar', desig:'Accounts Officer', dept:'GPF Section', posting:'Port Blair', doj:'2012-03-22', status:'Active' },
+  { id:'AN-2078', name:'Priya Sharma', desig:'Junior Accounts Officer', dept:'Pay Section', posting:'Port Blair', doj:'2018-07-01', status:'Active' },
+  { id:'AN-1150', name:'Smt. T. Fernandes', desig:'Section Officer', dept:'Audit Wing', posting:'Port Blair', doj:'2009-11-10', status:'Active' },
+  { id:'AN-0872', name:'Shri D. Biswas', desig:'Accounts Assistant', dept:'Pension Section', posting:'Car Nicobar', doj:'2015-08-20', status:'Active' },
+  { id:'AN-1320', name:'Shri P. Majumdar', desig:'Sr. Accounts Assistant', dept:'Loans &amp; Advances', posting:'Port Blair', doj:'2008-04-05', status:'On Leave' },
+  { id:'AN-1410', name:'Smt. R. Chakraborty', desig:'JAO', dept:'CPAO HQ', posting:'Port Blair', doj:'2020-01-15', status:'Active' },
+  { id:'AN-0650', name:'Shri M. Pillai', desig:'SAO', dept:'Internal Audit', posting:'Mayabunder', doj:'2003-09-01', status:'Transferred' },
+];
+
+// ─── LOANS DATA ───
+let loansData = [
+  { empId:'AN-1042', name:'Rajesh Kumar', type:'House Building Advance (HBA)', amount:2500000, date:'2022-04-15', emis:180, emisPaid:38, status:'Active', remarks:'1st instalment released' },
+  { empId:'AN-2078', name:'Priya Sharma', type:'Motor Car Advance', amount:180000, date:'2023-11-01', emis:60, emisPaid:19, status:'Active', remarks:'' },
+  { empId:'AN-1150', name:'Smt. T. Fernandes', type:'GPF Advance', amount:100000, date:'2024-01-10', emis:24, emisPaid:17, status:'Active', remarks:'Medical purpose' },
+  { empId:'AN-0872', name:'Shri D. Biswas', type:'Education Advance', amount:50000, date:'2024-06-01', emis:12, emisPaid:1, status:'Pending Sanction', remarks:'Under verification' },
+  { empId:'AN-1320', name:'Shri P. Majumdar', type:'Festival Advance', amount:10000, date:'2024-10-25', emis:10, emisPaid:10, status:'Closed', remarks:'Fully recovered' },
+  { empId:'AN-1410', name:'Smt. R. Chakraborty', type:'Computer Advance', amount:40000, date:'2023-07-15', emis:36, emisPaid:24, status:'Active', remarks:'' },
+];
+
+// ─── DOCUMENTS ───
+let docsData = [
+  { title:'HBA Application Form 2025', category:'Loans & Advances', date:'2025-06-01', format:'PDF' },
+  { title:'GPF Withdrawal Form (Form 3)', category:'GPF Related', date:'2025-05-15', format:'PDF' },
+  { title:'TA/DA Claim Form (TR-57)', category:'Forms & Applications', date:'2025-04-10', format:'PDF' },
+  { title:'Pay Fixation Proforma (7th CPC)', category:'Pay & Accounts', date:'2025-03-20', format:'XLSX' },
+  { title:'Circular 08/2025 – Pay Fixation on Promotion', category:'Circulars & Orders', date:'2025-06-10', format:'PDF' },
+  { title:'Circular 07/2025 – LTC Rules Amendment', category:'Circulars & Orders', date:'2025-05-28', format:'PDF' },
+  { title:'Medical Advance Application Form', category:'Loans & Advances', date:'2025-05-01', format:'DOCX' },
+  { title:'Pension Commutation Form', category:'Pension', date:'2025-04-25', format:'PDF' },
+  { title:'Service Rules – A&N Islands', category:'Service Rules', date:'2025-01-01', format:'PDF' },
+];
+
+// ─── CIRCULARS ───
+let circularsData = [
+  { no:'09/2025', subject:'Revised rates for Medical Advance – reg.', date:'2025-06-18', by:'FA & CAO' },
+  { no:'08/2025', subject:'Pay Fixation on Promotion – Instructions for DDOs', date:'2025-06-10', by:'Dy. CAO' },
+  { no:'07/2025', subject:'LTC Rules – Amendment effective from 01-Jul-2025', date:'2025-05-28', by:'FA & CAO' },
+  { no:'06/2025', subject:'Festival Advance – Eid-ul-Adha 2025 disbursement', date:'2025-05-20', by:'SAO (LA)' },
+  { no:'05/2025', subject:'CGHS Contribution Rates – Revised w.e.f. 01-Jul-2025', date:'2025-05-15', by:'FA & CAO' },
+  { no:'14/2025 (OO)', subject:'Transfer and Posting of Group B Officers', date:'2025-05-10', by:'Jt. Secretary (Fin)' },
+  { no:'04/2025', subject:'Annual Property Return – Reminder for all employees', date:'2025-04-30', by:'SAO (Admin)' },
+  { no:'03/2025', subject:'GPF Annual Statement FY 2024-25 – Availability', date:'2025-04-15', by:'AO (GPF)' },
+];
+
+// ═══════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════
+function showPage(id, el) {
+  document.querySelectorAll('.main-content.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('nav.main-nav a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (id === 'staff') renderStaff();
+  if (id === 'documents') renderDocs();
+  if (id === 'loans') renderLoans();
+  if (id === 'circulars') renderCirculars();
+  return false;
+}
+
+function showTab(page, tabId, btn) {
+  document.querySelectorAll('#page-' + page + ' .tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(page + '-' + tabId).classList.add('active');
+  document.querySelectorAll('#page-' + page + ' .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('#page-' + page + ' .tab-btn').forEach(b => { if(b.onclick && b.onclick.toString().includes(tabId)) b.classList.add('active'); });
+}
+
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.borderLeftColor = type === 'success' ? 'var(--gold)' : 'var(--danger)';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
+function openLoginModal(role) {
+  loginTarget = role;
+  document.getElementById('login-modal').classList.add('open');
+  document.getElementById('login-userid').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  if (role === 'admin') {
+    document.getElementById('login-modal-title').textContent = 'Admin Login';
+    document.getElementById('login-modal-sub').textContent = 'Enter admin credentials';
+    document.getElementById('login-modal-icon').textContent = '🔐';
+  } else {
+    document.getElementById('login-modal-title').textContent = 'Govt. Servant Login';
+    document.getElementById('login-modal-sub').textContent = 'Enter your Employee ID and password';
+    document.getElementById('login-modal-icon').textContent = '👤';
+  }
+}
+
+function closeLoginModal() {
+  document.getElementById('login-modal').classList.remove('open');
+}
+
+function doLogin() {
+  const uid = document.getElementById('login-userid').value.trim();
+  const pwd = document.getElementById('login-password').value;
+  const user = USERS[uid];
+  if (user && user.password === pwd && (loginTarget === 'admin' ? user.role === 'admin' : user.role === 'servant')) {
+    currentUser = { ...user, id: uid };
+    closeLoginModal();
+    applySession();
+    toast('✅ Welcome, ' + user.name + '!');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function logout() {
+  currentUser = null;
+  applySession();
+  toast('Logged out successfully.');
+}
+
+function applySession() {
+  const bar = document.getElementById('session-bar');
+  if (currentUser) {
+    bar.style.display = 'flex';
+    document.getElementById('session-role-label').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Govt. Servant';
+    document.getElementById('session-user-name').textContent = '— ' + currentUser.name + ' (' + currentUser.id + ')';
+  } else {
+    bar.style.display = 'none';
+  }
+  // Show/hide admin toolbars
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const isServant = currentUser && currentUser.role === 'servant';
+  ['staff-admin-toolbar','doc-admin-panel','loans-admin-toolbar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? 'block' : 'none';
+  });
+  const sacol = document.getElementById('staff-action-col');
+  if (sacol) sacol.style.display = isAdmin ? '' : 'none';
+  const lacol = document.getElementById('loan-action-col');
+  if (lacol) lacol.style.display = isAdmin ? '' : 'none';
+  // Servant tabs
+  const myStatusBtn = document.getElementById('tab-my-status-btn');
+  const addLoanBtn = document.getElementById('tab-add-loan-btn');
+  if (myStatusBtn) myStatusBtn.style.display = isServant ? 'block' : 'none';
+  if (addLoanBtn) addLoanBtn.style.display = isAdmin ? 'block' : 'none';
+  // Servant: show their loan details
+  if (isServant) renderServantLoanStatus();
+  renderStaff();
+  renderDocs();
+  renderLoans();
+}
+
+// ═══════════════════════════════════════════════════
+// STAFF TABLE
+// ═══════════════════════════════════════════════════
+function renderStaff(filter='') {
+  const tbody = document.getElementById('staff-tbody');
+  if (!tbody) return;
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const rows = staffData.filter(s =>
+    !filter ||
+    s.id.toLowerCase().includes(filter.toLowerCase()) ||
+    s.name.toLowerCase().includes(filter.toLowerCase()) ||
+    s.desig.toLowerCase().includes(filter.toLowerCase()) ||
+    s.dept.toLowerCase().includes(filter.toLowerCase())
+  );
+  tbody.innerHTML = rows.map(s => `
+    <tr>
+      <td><strong>${s.id}</strong></td>
+      <td>${s.name}</td>
+      <td>${s.desig}</td>
+      <td>${s.dept}</td>
+      <td>${s.posting}</td>
+      <td>${s.doj}</td>
+      <td><span class="badge badge-${s.status === 'Active' ? 'active' : s.status === 'On Leave' ? 'pending' : 'closed'}">${s.status}</span></td>
+      ${isAdmin ? `<td><button class="btn btn-sm btn-outline">✏ Edit</button></td>` : ''}
+    </tr>
+  `).join('');
+}
+
+function filterStaff(val) { renderStaff(val); }
+
+function showAddStaffModal() {
+  document.getElementById('add-staff-modal').classList.add('open');
+}
+
+function saveStaffEntry() {
+  const entry = {
+    id: document.getElementById('add-emp-id').value,
+    name: document.getElementById('add-emp-name').value,
+    desig: document.getElementById('add-emp-desig').value,
+    dept: document.getElementById('add-emp-dept').value,
+    posting: document.getElementById('add-emp-posting').value,
+    doj: document.getElementById('add-emp-doj').value,
+    status: document.getElementById('add-emp-status').value,
+  };
+  if (!entry.id || !entry.name) { toast('Employee ID and Name are required.', 'error'); return; }
+  staffData.push(entry);
+  document.getElementById('add-staff-modal').classList.remove('open');
+  renderStaff();
+  toast('✅ Employee record saved.');
+}
+
+// ═══════════════════════════════════════════════════
+// DOCUMENTS
+// ═══════════════════════════════════════════════════
+let activeDocCategory = 'all';
+
+function renderDocs(filter='') {
+  const tbody = document.getElementById('docs-tbody');
+  if (!tbody) return;
+  let rows = docsData;
+  if (activeDocCategory !== 'all') rows = rows.filter(d => d.category === activeDocCategory);
+  if (filter) rows = rows.filter(d => d.title.toLowerCase().includes(filter.toLowerCase()));
+  tbody.innerHTML = rows.map((d, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${d.title}</strong></td>
+      <td><span class="badge badge-approved">${d.category}</span></td>
+      <td>${d.date}</td>
+      <td><span class="badge badge-active">${d.format}</span></td>
+      <td><button class="btn btn-sm btn-teal" onclick="downloadDoc('${d.title}')">⬇ Download</button></td>
+    </tr>
+  `).join('');
+}
+
+function filterDocs(cat, btn) {
+  activeDocCategory = cat;
+  document.querySelectorAll('.doc-cat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDocs();
+}
+
+function searchDocs(val) { renderDocs(val); }
+
+function downloadDoc(title) {
+  toast('⬇ Downloading: ' + title);
+}
+
+function handleFileSelect(input) {
+  const list = document.getElementById('uploaded-files-list');
+  list.innerHTML = '';
+  Array.from(input.files).forEach(f => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="file-icon">📄</span><span class="file-name">${f.name}</span><span class="file-size">${(f.size/1024).toFixed(1)} KB</span>`;
+    list.appendChild(li);
+  });
+}
+
+function uploadDocument() {
+  const title = document.getElementById('doc-title').value;
+  const cat = document.getElementById('doc-category').value;
+  if (!title) { toast('Please enter a document title.', 'error'); return; }
+  docsData.unshift({ title, category: cat, date: new Date().toISOString().slice(0,10), format: 'PDF' });
+  document.getElementById('doc-title').value = '';
+  document.getElementById('uploaded-files-list').innerHTML = '';
+  renderDocs();
+  toast('✅ Document published: ' + title);
+}
+
+// ═══════════════════════════════════════════════════
+// LOANS
+// ═══════════════════════════════════════════════════
+function renderLoans(filter='') {
+  const tbody = document.getElementById('loans-tbody');
+  if (!tbody) return;
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  let rows = loansData;
+  if (filter) rows = rows.filter(l => l.empId.toLowerCase().includes(filter.toLowerCase()) || l.name.toLowerCase().includes(filter.toLowerCase()));
+  // If servant, only show their own
+  if (currentUser && currentUser.role === 'servant') {
+    rows = rows.filter(l => l.empId === currentUser.id);
+  }
+  tbody.innerHTML = rows.map(l => {
+    const balance = Math.round(l.amount - (l.amount / l.emis) * l.emisPaid);
+    const pct = Math.round((l.emisPaid / l.emis) * 100);
+    return `<tr>
+      <td>${l.empId}</td>
+      <td>${l.name}</td>
+      <td>${l.type}</td>
+      <td>₹${l.amount.toLocaleString()}</td>
+      <td>${l.date}</td>
+      <td>₹${balance.toLocaleString()} <small style="color:var(--muted)">(${pct}% paid)</small></td>
+      <td><span class="badge badge-${l.status === 'Active' ? 'active' : l.status === 'Closed' ? 'closed' : l.status === 'Pending Sanction' ? 'pending' : 'pending'}">${l.status}</span></td>
+      ${isAdmin ? `<td><button class="btn btn-sm btn-outline" onclick="editLoan('${l.empId}')">✏</button> <button class="btn btn-sm btn-danger" onclick="deleteLoan('${l.empId}')">🗑</button></td>` : ''}
+    </tr>`;
+  }).join('');
+}
+
+function filterLoans(val) { renderLoans(val); }
+
+function saveLoanEntry() {
+  const entry = {
+    empId: document.getElementById('loan-emp-id').value,
+    name: document.getElementById('loan-emp-name').value,
+    type: document.getElementById('loan-type').value,
+    amount: parseFloat(document.getElementById('loan-amount').value) || 0,
+    date: document.getElementById('loan-date').value,
+    emis: parseInt(document.getElementById('loan-emis').value) || 1,
+    emisPaid: parseInt(document.getElementById('loan-emis-paid').value) || 0,
+    status: document.getElementById('loan-status').value,
+    remarks: document.getElementById('loan-remarks').value,
+  };
+  if (!entry.empId || !entry.name) { toast('Employee ID and Name are required.', 'error'); return; }
+  loansData.push(entry);
+  showTab('loans', 'tab-overview', null);
+  renderLoans();
+  toast('✅ Loan entry saved.');
+}
+
+function editLoan(empId) {
+  const loan = loansData.find(l => l.empId === empId);
+  if (!loan) return;
+  document.getElementById('loan-emp-id').value = loan.empId;
+  document.getElementById('loan-emp-name').value = loan.name;
+  document.getElementById('loan-amount').value = loan.amount;
+  document.getElementById('loan-date').value = loan.date;
+  document.getElementById('loan-emis').value = loan.emis;
+  document.getElementById('loan-emis-paid').value = loan.emisPaid;
+  document.getElementById('loan-status').value = loan.status;
+  document.getElementById('loan-remarks').value = loan.remarks;
+  document.getElementById('tab-add-loan-btn').click();
+}
+
+function deleteLoan(empId) {
+  if (!confirm('Delete loan record for ' + empId + '?')) return;
+  loansData = loansData.filter(l => l.empId !== empId);
+  renderLoans();
+  toast('Loan record deleted.');
+}
+
+// ─── SERVANT LOAN STATUS ───
+function renderServantLoanStatus() {
+  const div = document.getElementById('servant-loan-detail');
+  if (!div || !currentUser) return;
+  const myLoans = loansData.filter(l => l.empId === currentUser.id);
+  if (myLoans.length === 0) {
+    div.innerHTML = '<div class="alert alert-info">No loan/advance records found for your Employee ID.</div>';
+    return;
+  }
+  div.innerHTML = myLoans.map(l => {
+    const pct = Math.round((l.emisPaid / l.emis) * 100);
+    const balance = Math.round(l.amount - (l.amount / l.emis) * l.emisPaid);
+    const steps = ['Applied', 'Under Review', 'Sanctioned', 'Disbursed', 'Active / Repaying', 'Closed'];
+    const stepIdx = l.status === 'Pending Sanction' ? 1 : l.status === 'Active' ? 4 : l.status === 'Closed' ? 5 : 2;
+    return `
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-icon">🏦</div><h3>${l.type}</h3></div>
+        <div class="status-track">
+          ${steps.map((s, i) => `<div class="st-step ${i < stepIdx ? 'done' : i === stepIdx ? 'active' : ''}">
+            <div class="st-dot">${i < stepIdx ? '✓' : i+1}</div>
+            <div class="st-label">${s}</div>
+          </div>`).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;">
+          <div class="data-row" style="flex-direction:column;align-items:flex-start;border:1px solid var(--bg2);border-radius:6px;padding:12px;">
+            <div class="label">Sanctioned Amount</div>
+            <div class="value" style="font-size:18px;margin-top:4px;">₹${l.amount.toLocaleString()}</div>
+          </div>
+          <div class="data-row" style="flex-direction:column;align-items:flex-start;border:1px solid var(--bg2);border-radius:6px;padding:12px;">
+            <div class="label">Balance Outstanding</div>
+            <div class="value" style="font-size:18px;margin-top:4px;color:var(--warning);">₹${balance.toLocaleString()}</div>
+          </div>
+          <div class="data-row" style="flex-direction:column;align-items:flex-start;border:1px solid var(--bg2);border-radius:6px;padding:12px;">
+            <div class="label">Repayment Progress</div>
+            <div class="value" style="font-size:18px;margin-top:4px;color:var(--success);">${l.emisPaid}/${l.emis} EMIs</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;"><span>Repayment Progress</span><span>${pct}%</span></div>
+          <div style="height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:var(--teal);border-radius:4px;transition:width 0.3s;"></div>
+          </div>
+        </div>
+        ${l.remarks ? `<div class="alert alert-info" style="margin-top:12px;">📝 Remarks: ${l.remarks}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// CIRCULARS
+// ═══════════════════════════════════════════════════
+function renderCirculars() {
+  const tbody = document.getElementById('circulars-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = circularsData.map((c, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${c.no}</strong></td>
+      <td>${c.subject}</td>
+      <td>${c.date}</td>
+      <td>${c.by}</td>
+      <td><button class="btn btn-sm btn-teal" onclick="toast('⬇ Downloading circular ${c.no}')">⬇ PDF</button></td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderStaff();
+  renderDocs();
+  renderLoans();
+  renderCirculars();
+});
+
+// close modal on overlay click
+document.getElementById('login-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeLoginModal();
+});
+document.getElementById('add-staff-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+</script>
+</body>
+</html>
